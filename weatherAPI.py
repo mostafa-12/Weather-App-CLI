@@ -1,5 +1,5 @@
 import requests
-
+from cacheFile import Cache
 class WeatherAPI:
     
     def __init__(self, apiKey,url = None):
@@ -8,26 +8,31 @@ class WeatherAPI:
     
     
     def getByCity(self,city):
-        
-        param = {
-            "q" : city,
-            "appid" : self.key
-        }
+        if not Cache.check(city):
 
-        try :
+            param = {
+                "q" : city,
+                "appid" : self.key
+            }
 
-            response = requests.get(self.url,params=param)
-            return response.json()
-        
-        except requests.exceptions.ConnectionError:
-            print("connection error")
-        
-        except requests.exceptions.ConnectTimeout:
-            print("error connection timedout")
-        
-        except Exception as err:
-            print(err)
+            try :
 
-        print("see logs file for more info about error")
-        return None
+                response = requests.get(self.url,params=param)
+                Cache.update(city,response.json())
+                return response.json()
+                
+
+            except requests.exceptions.ConnectionError:
+                print("connection error")
             
+            except requests.exceptions.ConnectTimeout:
+                print("error connection timedout")
+            
+            except Exception as err:
+                print(err)
+
+            print("see logs file for more info about error")
+            return None
+        else:
+            return Cache.check(city)
+                

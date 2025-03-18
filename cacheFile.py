@@ -17,7 +17,9 @@ class Cache:
     
     @classmethod
     def save(cls, data):
-        
+        if not os.path.exists(cls.CACHE_FILE):
+            with open(cls.CACHE_FILE,"w") as file:
+                json.dump({},file)
         with open(cls.CACHE_FILE,"w") as file:
             json.dump(data, file, indent=2, sort_keys= True)
 
@@ -32,6 +34,7 @@ class Cache:
             if timeStamp >= cls.EXPIRATION_TIME:
 
                 del cache[paramter]
+                cls.save(cache)
             
             else :
                 return cache[paramter]["data"]
@@ -49,7 +52,6 @@ class Cache:
             "timestamp" : time.time()
         }
         cls.save(loaded_cache)
-        
     @classmethod
     def clearCache(cls):
         if os.path.exists(cls.CACHE_FILE):
